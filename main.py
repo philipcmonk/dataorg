@@ -33,7 +33,7 @@ class Application(Frame):
 		images = ["only", "all"]
 
 		for img in images:
-			image = Image.open("F13001SAL_%s.jpg" % img)
+			image = Image.open("XRD/Processed/F13001SAL_%s.jpg" % img)
 			image = image.resize((653,500), Image.ANTIALIAS)
 			photo = ImageTk.PhotoImage(image)
 			t = Frame(xrdProcessed)
@@ -50,8 +50,11 @@ class Application(Frame):
 		xrdNotes.insert("1.0","XRD notes will go here")
 		xrdNotes.grid(column = 0, row = 1)
 
-		xrdGraphs = Label(frame)
-		xrdGraphs["text"] = ["XRD\n", "graphs"]
+		img = Image.open("data/F13001SAL_graph.png")
+		graph = ImageTk.PhotoImage(img)
+
+		xrdGraphs = Label(frame,image=graph)
+		xrdGraphs.image = graph
 		xrdGraphs.grid(column = 1, row = 0)
 
 		fesem = Label(frame)
@@ -64,35 +67,6 @@ class Application(Frame):
 		experimentNotes.grid(column = 2, row = 1)
 
 		self.tabs.append( ("SAL", frame) )
-
-#		button = Button(frame)
-#		button["text"] = "yo"
-#		button["command"] = self.quit
-#		button.grid()
-#		self.tabs.append( ("SAL", frame) )
-
-#		self.master = Label(self)
-#		self.master["text"] = "F13001"
-#		self.master.grid()
-#
-#		self.tabs = ttk.Notebook(self)
-#	
-#		self.QUIT = Button(self.tabs)
-#		self.QUIT["text"] = "QUIT"
-#		self.QUIT["fg"]   = "red"
-#		self.QUIT["command"] =  self.quit
-#		
-#		self.QUIT.grid()
-#		
-#		self.hi_there = Button(self.tabs)
-#		self.hi_there["text"] = "Hello",
-#		self.hi_there["command"] = self.say_hi
-#		
-#		self.hi_there.grid()
-#
-#		self.tabs.add(self.hi_there, text="hi")
-#		self.tabs.add(self.QUIT, text="goodbye")
-#		self.tabs.grid()
 
 	def __init__(self, master=None):
 		Frame.__init__(self, master)

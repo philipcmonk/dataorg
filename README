@@ -1,1 +1,6 @@
-This is a program written by Philip Monk for analyzing data related to research by Andre Brewer.
+This is a program written by Philip C Monk (pcmonk) for analyzing data related to research by Andre Brewer.
+
+This requires Python 2.x and R.
+
+To use, place data in the XRD folder, run `Rscript createplot.r F13001SAL`, then run `main.py`.
+
