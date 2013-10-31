@@ -114,6 +114,15 @@ class Application(Frame):
 								res.append(sem + nu + e)
 		return res
 
+	def onModifiedXrd(self,widget,event):
+		widget["text"] = "Save*"
+
+	def saveXrdNotes(self,notes,save,fileroot):
+		notes.edit_modified(0)
+		f = open("data/"+fileroot+"_xrdnotes.txt",'w')
+		f.write(notes.get("0.0", "end"))
+		f.close()
+		save["text"] = "Save"
 
 	def makeTabs(self,nb):
 		self.tabs = []
@@ -138,14 +147,32 @@ class Application(Frame):
 		xrdProcessed.grid(column = 0, row = 0)
 
 		xrdNotes = Text(frame)
+		xrdSave = Button(frame)
+
 		xrdNotes["height"] = 5
-		xrdNotes.insert("1.0","XRD notes will go here")
+		xrdNotes.bind("<<Modified>>",lambda e:self.onModifiedXrd(xrdSave,e))
+		xrdNotes.bind("<FocusOut>",lambda e,f=self.fileroot:self.saveXrdNotes(xrdNotes,xrdSave,f))
+
+		if os.path.isfile("data/%s_xrdnotes.txt" % self.fileroot):
+			f = open("data/%s_xrdnotes.txt" % self.fileroot,'r')
+			xrdNotes.insert("end",f.read())
+			f.close()
+
+		xrdNotes.edit_modified(0)
+
 		xrdNotes.grid(column = 0, row = 1)
+
+		xrdSave["text"] = "Save"
+		xrdSave["command"] = lambda f=self.fileroot:self.saveXrdNotes(xrdNotes,xrdSave,f)
+		xrdSave.grid(column = 0, row = 2)
 
 		if not os.path.isfile("data/%s_graph.png" % self.fileroot) or \
 		   os.path.getmtime("data/%s_graph.png" % self.fileroot) < os.path.getmtime("XRD/Processed/%s.txt" % self.fileroot) or \
 		   os.path.getmtime("data/%s_graph.png" % self.fileroot) < os.path.getmtime("createplot.r"):
-			os.system("Rscript createplot.r %s" % self.fileroot)
+			if os.name == "nt":
+				os.system(".\\runr.bat %s" % self.fileroot)
+			else:
+				os.system("Rscript createplot.r %s" % self.fileroot)
 
 		img = Image.open("data/%s_graph.png" % self.fileroot)
 		graph = ImageTk.PhotoImage(img)
@@ -154,14 +181,14 @@ class Application(Frame):
 		xrdGraphs.image = graph
 		xrdGraphs.grid(column = 1, row = 0)
 
-		fesem = Label(frame)
-		fesem["text"] = ["FESEM\n", "data"]
-		fesem.grid(column = 2, row = 0)
-
 		experimentNotes = Text(frame)
 		experimentNotes["height"] = 5
 		experimentNotes.insert("1.0", "Experiment notes will go here")
-		experimentNotes.grid(column = 2, row = 1)
+		experimentNotes.grid(column = 1, row = 1)
+
+		fesem = Label(frame)
+		fesem["text"] = ["FESEM\n", "data"]
+		fesem.grid(column = 2, row = 0)
 
 		self.tabs.append( (self.fileroot, frame) )
 
