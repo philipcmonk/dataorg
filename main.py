@@ -5,6 +5,7 @@ import ttk
 from PIL import Image, ImageTk
 import os
 import re
+import csv
 
 def selectExp(event):
 	app.selectExp(event)
@@ -124,6 +125,12 @@ class Application(Frame):
 		f.close()
 		save["text"] = "Save"
 
+	def saveEdNotes(self,eN,rows,eS,fileroot):
+		with open("data/"+fileroot+"_exp1.csv",'w') as csvfile:
+			csvwriter = csv.writer(csvfile,delimiter='\t',quotechar='|')
+			for r in rows:
+				csvwriter.writerow([r[0].get(),r[1].get()])
+
 	def makeTabs(self,nb):
 		self.tabs = []
 		frame = Frame(nb)
@@ -181,16 +188,84 @@ class Application(Frame):
 		xrdGraphs.image = graph
 		xrdGraphs.grid(column = 1, row = 0)
 
-		experimentNotes = Text(frame)
-		experimentNotes["height"] = 5
-		experimentNotes.insert("1.0", "Experiment notes will go here")
+		experimentNotes = Frame(frame)
+		experimentSave = Button(frame)
+
+		rows = self.fillExperimentNotes(experimentNotes,experimentSave)
+
 		experimentNotes.grid(column = 1, row = 1)
+
+		experimentSave["text"] = "Save"
+		experimentSave["command"] = lambda f=self.fileroot:self.saveEdNotes(experimentNotes,experimentSave,rows,f)
+#		experimentNotes.grid(column = 1, row = 2)
 
 		fesem = Label(frame)
 		fesem["text"] = ["FESEM\n", "data"]
 		fesem.grid(column = 2, row = 0)
 
 		self.tabs.append( (self.fileroot, frame) )
+
+	def fillExperimentNotes(self,eN,eS):
+		if not os.path.isfile("data/%s_exp1.csv" % self.fileroot):
+			f = open("data/%s_exp1.csv" % self.fileroot,'w')
+			f.write("1\ttesting\n2\tand stuff\n3\ttesting\n4\tand stuff\n5\ttesting\n6\tand stuff\n7\ttesting\n8\tand stuff")
+			f.close()
+		with open("data/%s_exp1.csv" % self.fileroot) as csvfile:
+			exp1 = csv.reader(csvfile, delimiter="\t", quotechar = "|")
+			rows = []
+			for i,r in enumerate(exp1):
+				rows.append((Entry(eN),Entry(eN)))
+				a,b = rows[-1]
+				a.bind("<FocusOut>",lambda e,f=self.fileroot:self.saveEdNotes(eN,rows,eS,f))
+				b.bind("<FocusOut>",lambda e,f=self.fileroot:self.saveEdNotes(eN,rows,eS,f))
+				a["width"] = 5
+				a["justify"] = "right"
+				a.insert("end",r[0])
+				b.insert("end",r[1])
+				a.grid(column = 2, row = i)
+				b.grid(column = 3, row = i,columnspan=2)
+#		row = []
+#		for i in range(0,9):
+#			row.append((Entry(eN),Entry(eN)))
+#			a,b = row[-1]
+#			a["width"] = 5
+#			a["justify"] = "right"
+#			a.insert("end",str(i+1))
+#			a.grid(column = 2, row = i)
+#			b.grid(column = 3, row = i,columnspan=2)
+
+		
+
+#		start = Entry(eN)
+#		end = Entry(eN)
+#		act = Entry(eN)
+#		cool = Entry(eN)
+#
+#		start["width"] = 6
+#		end["width"] = 6
+#		act["width"] = 6
+#		cool["width"] = 6
+#
+#		start.grid(column=1,row=8,columnspan=2)
+#		end.grid(column=3,row=8,columnspan=2)
+#		act.grid(column=0,row=9)
+#		cool.grid(column=0,row=10)
+#
+#		ast = Entry(eN)
+#		ast["width"] = 10
+#		ast.grid(column=1,row=9)
+#		asd = Entry(eN)
+#		asd["width"] = 10
+#		asd.grid(column=2,row=9)
+#		aet = Entry(eN)
+#		aet["width"] = 10
+#		aet.grid(column=3,row=9)
+#		aed = Entry(eN)
+#		aed["width"] = 10
+#		aed.grid(column=4,row=9)
+#		cst = Entry(eN)
+#		cst["width"] = 10
+#		cst.grid(column=1,row=10)
 
 	def __init__(self, master=None):
 		self.scrapeExperiments()
