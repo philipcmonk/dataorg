@@ -34,12 +34,9 @@ class Application(Frame):
 		self.chooseTrial = ttk.Treeview(self)
 		self.fillExperiments(self.chooseTrial)
 		self.chooseTrial.bind('<Double-Button-1>',selectExp)
+		self.chooseTrial.bind('<Button-3>',self.overlayExp)
 		self.chooseTrial["height"] = 35
 		self.chooseTrial.pack(side=LEFT)
-
-#		self.trialLabel = Label(self)
-#		self.trialLabel["text"] = "F13001"
-#		self.trialLabel.pack()
 
 		self.nb = ttk.Notebook(self)
 		self.makeTabs(self.nb)
@@ -103,6 +100,32 @@ class Application(Frame):
 			for file in self.hijitosOf():
 				self.fileroot = file
 				self.dispExp()
+
+		self.nb.select(self.tabs[0][1])
+
+	def overlayExp(self,event):
+		tree = event.widget
+		node = tree.identify_row(event.y)
+		if tree.parent(node):
+			if tree.parent(tree.parent(node)):
+				if tree.parent(tree.parent(tree.parent(node))):
+					othertrials = " ".join(self.hijitosOf(tree.item(tree.parent(tree.parent(node)))["text"], tree.item(tree.parent(node))["text"], tree.item(node)["text"]))
+				else:
+					othertrials = " ".join(self.hijitosOf(tree.item(tree.parent(node))["text"],tree.item(node)["text"]))
+			else:
+				othertrials = " ".join(self.hijitosOf(tree.item(node)["text"]))
+		else:
+			othertrials = " ".join(self.hijitosOf())
+
+		if os.name == "nt":
+			os.system(".\\runr.bat %s %s" % (self.fileroot,othertrials))
+		else:
+			os.system("Rscript createplot.r %s %s" % (self.fileroot,othertrials))
+		self.fileroot = self.nb.tab(self.nb.select(),option="text")
+		self.makeTabs(self.nb)
+		self.nb.insert(self.nb.select(),self.tabs[0][1],text=self.fileroot)
+		self.nb.forget("current")
+
 
 	def hijitosOf(self, semester='', number='', experiment=''):
 		res = []
