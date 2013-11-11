@@ -125,11 +125,11 @@ class Application(Frame):
 		f.close()
 		save["text"] = "Save"
 
-	def saveEdNotes(self,eN,rows,eS,fileroot):
-		with open("data/"+fileroot+"_exp1.csv",'w') as csvfile:
+	def saveEdNotes(self,eN,rows,eS,fileroot,appendage):
+		with open("data/"+fileroot+"_exp"+appendage+".csv",'w') as csvfile:
 			csvwriter = csv.writer(csvfile,delimiter='\t',quotechar='|')
 			for r in rows:
-				csvwriter.writerow([r[0].get(),r[1].get()])
+				csvwriter.writerow([e.get() for e in r])
 
 	def makeTabs(self,nb):
 		self.tabs = []
@@ -206,24 +206,58 @@ class Application(Frame):
 		self.tabs.append( (self.fileroot, frame) )
 
 	def fillExperimentNotes(self,eN,eS):
+		eN1 = Frame(eN)
+		eN2 = Frame(eN)
+		eN1.pack()
+		eN2.pack()
+
 		if not os.path.isfile("data/%s_exp1.csv" % self.fileroot):
 			f = open("data/%s_exp1.csv" % self.fileroot,'w')
 			f.write("1\ttesting\n2\tand stuff\n3\ttesting\n4\tand stuff\n5\ttesting\n6\tand stuff\n7\ttesting\n8\tand stuff")
 			f.close()
 		with open("data/%s_exp1.csv" % self.fileroot) as csvfile:
 			exp1 = csv.reader(csvfile, delimiter="\t", quotechar = "|")
-			rows = []
+			rows1 = []
 			for i,r in enumerate(exp1):
-				rows.append((Entry(eN),Entry(eN)))
-				a,b = rows[-1]
-				a.bind("<FocusOut>",lambda e,f=self.fileroot:self.saveEdNotes(eN,rows,eS,f))
-				b.bind("<FocusOut>",lambda e,f=self.fileroot:self.saveEdNotes(eN,rows,eS,f))
+				rows1.append((Entry(eN1),Entry(eN1)))
+				a,b = rows1[-1]
+				a.bind("<FocusOut>",lambda e,f=self.fileroot:self.saveEdNotes(eN1,rows1,eS,f,"1"))
+				b.bind("<FocusOut>",lambda e,f=self.fileroot:self.saveEdNotes(eN1,rows1,eS,f,"1"))
 				a["width"] = 5
 				a["justify"] = "right"
 				a.insert("end",r[0])
 				b.insert("end",r[1])
-				a.grid(column = 2, row = i)
-				b.grid(column = 3, row = i,columnspan=2)
+				a.grid(column = 0, row = i)
+				b.grid(column = 1, row = i)
+
+		if not os.path.isfile("data/%s_exp2.csv" % self.fileroot):
+			f = open("data/%s_exp2.csv" % self.fileroot,'w')
+			f.write("Act.\t12:00 AM\t01/01/2013\t1:00 AM\t01/01/2013\nCool\t1:00 AM\t01/01/2013\t2:00 AM\t01/01/2013")
+			f.close()
+		with open("data/%s_exp2.csv" % self.fileroot) as csvfile:
+			exp2 = csv.reader(csvfile, delimiter="\t", quotechar = "|")
+			rows2 = []
+			for i,r in enumerate(exp2):
+				rows2.append((Entry(eN2),Entry(eN2),Entry(eN2),Entry(eN2),Entry(eN2)))
+				a,b,c,d,e = rows2[-1]
+				a.bind("<FocusOut>",lambda e,f=self.fileroot:self.saveEdNotes(eN2,rows2,eS,f,"2"))
+				b.bind("<FocusOut>",lambda e,f=self.fileroot:self.saveEdNotes(eN2,rows2,eS,f,"2"))
+				c.bind("<FocusOut>",lambda e,f=self.fileroot:self.saveEdNotes(eN2,rows2,eS,f,"2"))
+				d.bind("<FocusOut>",lambda e,f=self.fileroot:self.saveEdNotes(eN2,rows2,eS,f,"2"))
+				e.bind("<FocusOut>",lambda e,f=self.fileroot:self.saveEdNotes(eN2,rows2,eS,f,"2"))
+				a["width"] = 5
+				a["justify"] = "right"
+				a.insert("end",r[0])
+				b.insert("end",r[1])
+				c.insert("end",r[2])
+				d.insert("end",r[3])
+				e.insert("end",r[4])
+				a.grid(column = 0, row = i)
+				b.grid(column = 1, row = i)
+				c.grid(column = 2, row = i)
+				d.grid(column = 3, row = i)
+				e.grid(column = 4, row = i)
+
 #		row = []
 #		for i in range(0,9):
 #			row.append((Entry(eN),Entry(eN)))
